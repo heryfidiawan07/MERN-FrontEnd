@@ -1,4 +1,5 @@
-import React from 'react'
+import React, {useState, useEffect} from 'react'
+import axios from 'axios'
 import {useHistory, NavLink} from 'react-router-dom'
 import {authenticated, theme} from '../store'
 import {useRecoilState} from 'recoil'
@@ -10,7 +11,6 @@ function Navbar({children}) {
 	const [auth, setAuth] = useRecoilState(authenticated)
 
 	const logoutHandler = (e) => {
-		e.preventDefault()
 		localStorage.clear()
 		setAuth({
 			check: false,
@@ -19,8 +19,30 @@ function Navbar({children}) {
 		history.push('/login')
 	}
 
+	const headers = {headers: {Authorization: localStorage.getItem('auth-token')}}
+
+	const [theAuth, setTheAuth] = useState([])
+	const authUser = async () => {
+		try{
+			let res = await axios.get(`http://localhost:4000/user/${localStorage.getItem('auth-id')}`, headers)
+			setTheAuth(res.data.data)
+			// console.log('RES',res.data.data)
+		} catch (e) {
+			console.log('E',e.message)
+			logoutHandler()
+		}
+	}
+
+	const authHandler = () => {
+		authUser()
+	}
+
+	useEffect(() => {
+		authUser()
+	}, [])
+
 	return (
-		<div>
+		<div onClick={authHandler}>
 			<nav className={`navbar navbar-expand-md navbar-dark bg-${currentTheme}`}>
 				<div className="container-fluid">
 					<NavLink className="navbar-brand" to="/">REACT</NavLink>
@@ -51,7 +73,7 @@ function Navbar({children}) {
 							auth.check ?
 								<ul className="navbar-nav mb-2 mb-md-0">
 									<li className="nav-item">
-										<NavLink className="nav-link" to="">{auth.user.name}</NavLink>
+										<NavLink className="nav-link" to="">{theAuth.name}</NavLink>
 									</li>
 									<li className="nav-item">
 										<NavLink className="nav-link" to="" onClick={logoutHandler}>Logout</NavLink>

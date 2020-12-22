@@ -1,16 +1,21 @@
 // import axios from 'axios'
 import {useEffect} from 'react'
 import {useHistory} from 'react-router-dom'
-import {useRecoilValue} from 'recoil'
+import {useRecoilValue, useRecoilState} from 'recoil'
 import {authenticated} from '../store'
 
 function Authenticated(props) {
 	const history = useHistory()
-	const auth = useRecoilValue(authenticated)
+	const token = useRecoilValue(authenticated)
+	const [auth, setAuth] = useRecoilState(authenticated)
 	
 	useEffect(() => {
-		if (!auth.check) {
+		if (!token.check) {
 			localStorage.clear()
+			setAuth({
+				check: false,
+				user: false,
+			})
 			history.push('/login')
 		}
 	}, [])

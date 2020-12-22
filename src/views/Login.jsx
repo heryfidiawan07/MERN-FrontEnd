@@ -9,9 +9,11 @@ function Login() {
 
 	const [auth, setAuth] = useRecoilState(authenticated)
 	const [currentTheme, setCurrentTheme] = useRecoilState(theme)
+	
 
 	const [email, setEmail] = useState('')
 	const [password, setPassword] = useState('')
+
 
 	const submitHandler = async (e) => {
 		e.preventDefault()
@@ -23,6 +25,7 @@ function Login() {
 		// console.log(data)
 		await axios.post('/auth/login', data)
 		.then(res => {
+			console.log(res.data.data)
 			localStorage.setItem('auth-token', res.data.data.Authorization)
 			localStorage.setItem('auth-id', res.data.user._id)
 			localStorage.setItem('auth-name', res.data.user.name)
@@ -31,13 +34,12 @@ function Login() {
 			setCurrentTheme('success')
 
 			setAuth({
-				check: true,
-				// check: localStorage.getItem('auth-token'),
+				check: res.data.data.Authorization,
 				user: {
-					id: localStorage.getItem('auth-id'),
-					name: localStorage.getItem('auth-name'),
-					email: localStorage.getItem('auth-email'),
-					token: localStorage.getItem('auth-token'),
+					id: res.data.user._id,
+					name: res.data.user.name,
+					email: res.data.user.email,
+					token: res.data.user.Authorization,
 				},
 			})
 
